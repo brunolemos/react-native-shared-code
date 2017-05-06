@@ -132,7 +132,7 @@ function verifyPathIntegrity(path) {
 }
 
 function verifyPlatformIntegrity(platform) {
-  if (!/^(android|ios|windows)$/i.test(platform)) {
+  if (!/^(android|ios|web|windows)$/i.test(platform)) {
     console.error(`Provided platform ${platform} is not valid. Accepted platforms are android, ios, windows.`);
     process.exit(1);
   }
@@ -143,7 +143,7 @@ function main() {
   handleVersion();
   const defaults = {
     path: '.',
-    platform: ['android', 'ios', 'windows'],
+    platform: ['android', 'ios', 'web', 'windows'],
   }
 
   const path = argv._[0] ? argv._[0] : defaults.path;

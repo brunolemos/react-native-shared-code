@@ -1,31 +1,45 @@
-const fs = require('fs');
-const babylon = require('babylon');
-const traverse = require('babel-traverse').default;
+const fs = require('fs')
+const babylon = require('babylon')
+const traverse = require('babel-traverse').default
 
-let platformModuleLOCTotal = 0;
-process.argv.slice(2).forEach((filePath) => {
-  const data = fs.readFileSync(filePath, {encoding: 'utf8'});
+let platformModuleLOCTotal = 0
+process.argv.slice(2).forEach(filePath => {
+  const data = fs.readFileSync(filePath, { encoding: 'utf8' })
   traverse(
-    babylon.parse(data, {sourceType: 'module', plugins: ['jsx', 'flow', 'objectRestSpread', 'classProperties']}), 
+    babylon.parse(data, {
+      sourceType: 'module',
+      plugins: [
+        'asyncGenerators',
+        'classProperties',
+        'decorators',
+        'dynamicImport',
+        'exportExtensions',
+        'flow',
+        'jsx',
+        'objectRestSpread',
+      ],
+    }),
     {
       ImportDeclaration(path, state) {
-        if(path.get('source').node.value === 'react-native') {
+        if (path.get('source').node.value === 'react-native') {
           path.get('specifiers').forEach(function(specifier) {
-            if(specifier.node.imported) {
-              const importedIdentifierName = specifier.node.imported.name;
-              if(importedIdentifierName === 'Platform') {
-                const platformModuleLOC = new Set();
-                const {referencePaths} = path.scope.getBinding(importedIdentifierName);
+            if (specifier.node.imported) {
+              const importedIdentifierName = specifier.node.imported.name
+              if (importedIdentifierName === 'Platform') {
+                const platformModuleLOC = new Set()
+                const { referencePaths } = path.scope.getBinding(
+                  importedIdentifierName
+                )
                 referencePaths.forEach(function(referencePath) {
-                  platformModuleLOC.add(referencePath.node.loc.start.line);
-                });
-                platformModuleLOCTotal += platformModuleLOC.size;
+                  platformModuleLOC.add(referencePath.node.loc.start.line)
+                })
+                platformModuleLOCTotal += platformModuleLOC.size
               }
             }
-          });
+          })
         }
-      }
+      },
     }
-  );
-});
-console.log(platformModuleLOCTotal);
+  )
+})
+console.log(platformModuleLOCTotal)
